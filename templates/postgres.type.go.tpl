@@ -39,28 +39,28 @@ func ({{ $short }} *{{ .Name }}) Insert(db XODB) error {
 {{ if .Table.ManualPk }}
 	// sql insert query, primary key must be provided
 	const sqlstr = `INSERT INTO {{ $table }} (` +
-		`{{ colnames .Fields }}` +
+		`{{ colnames .ModFields }}` +
 		`) VALUES (` +
-		`{{ colvals .Fields }}` +
+		`{{ colvals .ModFields }}` +
 		`)`
 
 	// run query
-	XOLog(sqlstr, {{ fieldnames .Fields $short }})
-	err = db.QueryRow(sqlstr, {{ fieldnames .Fields $short }}).Scan(&{{ $short }}.{{ .PrimaryKey.Name }})
+	XOLog(sqlstr, {{ fieldnames .ModFields $short }})
+	err = db.QueryRow(sqlstr, {{ fieldnames .ModFields $short }}).Scan(&{{ $short }}.{{ .PrimaryKey.Name }})
 	if err != nil {
 		return err
 	}
 {{ else }}
 	// sql insert query, primary key provided by sequence
 	const sqlstr = `INSERT INTO {{ $table }} (` +
-		`{{ colnames .Fields .PrimaryKey.Name }}` +
+		`{{ colnames .ModFields .PrimaryKey.Name }}` +
 		`) VALUES (` +
-		`{{ colvals .Fields .PrimaryKey.Name }}` +
+		`{{ colvals .ModFields .PrimaryKey.Name }}` +
 		`) RETURNING {{ colname .PrimaryKey.Col }}`
 
 	// run query
-	XOLog(sqlstr, {{ fieldnames .Fields $short .PrimaryKey.Name }})
-	err = db.QueryRow(sqlstr, {{ fieldnames .Fields $short .PrimaryKey.Name }}).Scan(&{{ $short }}.{{ .PrimaryKey.Name }})
+	XOLog(sqlstr, {{ fieldnames .ModFields $short .PrimaryKey.Name }})
+	err = db.QueryRow(sqlstr, {{ fieldnames .ModFields $short .PrimaryKey.Name }}).Scan(&{{ $short }}.{{ .PrimaryKey.Name }})
 	if err != nil {
 		return err
 	}
@@ -90,26 +90,26 @@ func ({{ $short }} *{{ .Name }}) Insert(db XODB) error {
 		{{ if gt ( len .PrimaryKeyFields ) 1 }}
 			// sql query with composite primary key
 			const sqlstr = `UPDATE {{ $table }} SET (` +
-				`{{ colnamesmulti .Fields .PrimaryKeyFields }}` +
+				`{{ colnamesmulti .ModFields .PrimaryKeyFields }}` +
 				`) = ( ` +
-				`{{ colvalsmulti .Fields .PrimaryKeyFields }}` +
-				`) WHERE {{ colnamesquerymulti .PrimaryKeyFields " AND " (getstartcount .Fields .PrimaryKeyFields) nil }}`
+				`{{ colvalsmulti .ModFields .PrimaryKeyFields }}` +
+				`) WHERE {{ colnamesquerymulti .PrimaryKeyFields " AND " (getstartcount .ModFields .PrimaryKeyFields) nil }}`
 
 			// run query
-			XOLog(sqlstr, {{ fieldnamesmulti .Fields $short .PrimaryKeyFields }}, {{ fieldnames .PrimaryKeyFields $short}})
-			_, err = db.Exec(sqlstr, {{ fieldnamesmulti .Fields $short .PrimaryKeyFields }}, {{ fieldnames .PrimaryKeyFields $short}})
+			XOLog(sqlstr, {{ fieldnamesmulti .ModFields $short .PrimaryKeyFields }}, {{ fieldnames .PrimaryKeyFields $short}})
+			_, err = db.Exec(sqlstr, {{ fieldnamesmulti .ModFields $short .PrimaryKeyFields }}, {{ fieldnames .PrimaryKeyFields $short}})
 		return err
 		{{- else }}
 			// sql query
 			const sqlstr = `UPDATE {{ $table }} SET (` +
-				`{{ colnames .Fields .PrimaryKey.Name }}` +
+				`{{ colnames .ModFields .PrimaryKey.Name }}` +
 				`) = ( ` +
-				`{{ colvals .Fields .PrimaryKey.Name }}` +
-				`) WHERE {{ colname .PrimaryKey.Col }} = ${{ colcount .Fields .PrimaryKey.Name }}`
+				`{{ colvals .ModFields .PrimaryKey.Name }}` +
+				`) WHERE {{ colname .PrimaryKey.Col }} = ${{ colcount .ModFields .PrimaryKey.Name }}`
 
 			// run query
-			XOLog(sqlstr, {{ fieldnames .Fields $short .PrimaryKey.Name }}, {{ $short }}.{{ .PrimaryKey.Name }})
-			_, err = db.Exec(sqlstr, {{ fieldnames .Fields $short .PrimaryKey.Name }}, {{ $short }}.{{ .PrimaryKey.Name }})
+			XOLog(sqlstr, {{ fieldnames .ModFields $short .PrimaryKey.Name }}, {{ $short }}.{{ .PrimaryKey.Name }})
+			_, err = db.Exec(sqlstr, {{ fieldnames .ModFields $short .PrimaryKey.Name }}, {{ $short }}.{{ .PrimaryKey.Name }})
 			return err
 		{{- end }}
 	}
@@ -136,18 +136,18 @@ func ({{ $short }} *{{ .Name }}) Insert(db XODB) error {
 
 		// sql query
 		const sqlstr = `INSERT INTO {{ $table }} (` +
-			`{{ colnames .Fields }}` +
+			`{{ colnames .ModFields }}` +
 			`) VALUES (` +
-			`{{ colvals .Fields }}` +
+			`{{ colvals .ModFields }}` +
 			`) ON CONFLICT ({{ colnames .PrimaryKeyFields }}) DO UPDATE SET (` +
-			`{{ colnames .Fields }}` +
+			`{{ colnames .ModFields }}` +
 			`) = (` +
-			`{{ colprefixnames .Fields "EXCLUDED" }}` +
+			`{{ colprefixnames .ModFields "EXCLUDED" }}` +
 			`)`
 
 		// run query
-		XOLog(sqlstr, {{ fieldnames .Fields $short }})
-		_, err = db.Exec(sqlstr, {{ fieldnames .Fields $short }})
+		XOLog(sqlstr, {{ fieldnames .ModFields $short }})
+		_, err = db.Exec(sqlstr, {{ fieldnames .ModFields $short }})
 		if err != nil {
 			return err
 		}

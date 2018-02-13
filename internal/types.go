@@ -125,6 +125,7 @@ type Type struct {
 	PrimaryKey       *Field
 	PrimaryKeyFields []*Field
 	Fields           []*Field
+	ModFields        []*Field
 	Table            *models.Table
 	Comment          string
 }

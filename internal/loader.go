@@ -542,6 +542,17 @@ func (tl TypeLoader) LoadColumns(args *ArgType, typeTpl *Type) error {
 			typeTpl.PrimaryKey = f
 		}
 
+		ignoreMod := false
+		for _, ignoreModField := range args.IgnoreModFields {
+			if ignoreModField == c.ColumnName {
+				ignoreMod = true
+			}
+		}
+
+		if !ignoreMod {
+			typeTpl.ModFields = append(typeTpl.ModFields, f)
+		}
+
 		// append col to template fields
 		typeTpl.Fields = append(typeTpl.Fields, f)
 	}
