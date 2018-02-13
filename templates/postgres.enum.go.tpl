@@ -60,3 +60,6 @@ func ({{ $short }} *{{ $type }}) Scan(src interface{}) error {
 	return {{ $short }}.UnmarshalText(buf)
 }
 
+func ({{ $short }} {{ $type }}) IsValid() bool {
+	return {{ $short }}.String() != ""
+}
